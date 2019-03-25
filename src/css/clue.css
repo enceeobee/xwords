@@ -1,0 +1,18 @@
+/* .clue {
+  padding-left: 10px;
+} */
+
+.clue {
+  cursor: pointer;
+  list-style: none;
+  padding: 6px 0px 6px 10px;
+}
+
+/* .clue:hover {
+  background-color: #efefef;
+} */
+
+
+.selected {
+  background-color: #a7d8ff;
+}

@@ -1,0 +1,33 @@
+.App {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.header {
+
+}
+
+.puzzle-area {
+  display: grid;
+  grid-template-columns: [board] 2fr [across] 1fr [down] 1fr;
+  grid-gap: 10px;
+}
+
+.board{
+  grid-column: board;
+}
+
+.across{
+  grid-column: across;
+}
+
+.down{
+  grid-column: down;
+}
+
+.clues {
+  margin: 0;
+  padding: 0;
+  max-height: 500px;
+  overflow: scroll;
+}

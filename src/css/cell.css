@@ -1,0 +1,42 @@
+.block {
+  background-color: #000;
+}
+
+.cell {
+  cursor: pointer;
+  position: relative;
+  text-align: center;
+  border: #111 1px solid;
+  padding: 2px;
+  margin: 0;
+  vertical-align: bottom;
+  overflow: hidden;
+
+  grid-column-start: auto;
+  grid-column-end: auto;
+  grid-row-start: auto;
+  grid-row-end: auto;
+
+  justify-self: stretch;
+  align-self: stretch;
+}
+
+.cell:hover {
+  background-color: #0cf;
+}
+
+.block:hover {
+  background-color: #000;
+}
+
+.number {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  font-size: xx-small;
+  text-align: left;
+}
+
+.input {
+  background-color: yellow;
+}
