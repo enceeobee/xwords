@@ -21,6 +21,7 @@ function Puzzle (props) {
             row={row}
             inputCell={props.inputCell}
             selectedClue={props.selectedClue}
+            selectInputCell={props.selectInputCell}
           />
         ))
       }

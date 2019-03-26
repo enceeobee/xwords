@@ -20,7 +20,7 @@ class App extends Component {
         down: []
       },
       entries: [],
-      inputCell: [0, 0], // TODO - dynamically set this
+      inputCell: [0, 0],
       isLoading: false,
       numberCoords: {},
       puzzle: [],
@@ -64,28 +64,22 @@ class App extends Component {
   }
 
   selectClue = (number, direction) => {
+    // TODO - update input cell
     this.setState(() => ({ selectedClue: { direction, number } }))
   }
 
   inputCharacter = (event) => {
     // Ensure event.key is a letter
-    // TODO - do we want to allow numbers?
+    // TODO - allow other keys, e.g. space, backspace, numbers(?)
     if (event.keyCode < 65 || event.keyCode > 90) return false
 
     // Add it to the puzzle
     // TODO - is there not a better way to do this???
-    const puzzle = this.state.puzzle.map(r => r.map(c => ({...c})))
+    const puzzle = this.state.puzzle.map(r => r.map(c => ({ ...c })))
     const [row, col] = this.state.inputCell
-
-    // console.log('before', puzzle[row][col])
 
     puzzle[row][col].input = event.key.toUpperCase()
 
-    // console.log('after', puzzle[row][col])
-    // console.log('state', this.state.puzzle[row][col])
-
-
-    // this.setState(() => ({ puzzle }), ({ inputCell, puzzle, selectedClue }) => {
     this.setState(() => ({ puzzle }), () => {
       // Check if winner
       if (checkIsWinner(this.state.puzzle)) {
@@ -95,8 +89,31 @@ class App extends Component {
       // Move input cell in proper direction
       const nextInputCell = findNextInputCell(this.state.puzzle, this.state.inputCell, this.state.selectedClue.direction)
 
+      // TODO - Update selected clue if necessary
+
       this.setState(() => ({ inputCell: nextInputCell }))
     })
+  }
+
+  selectInputCell = (selectedInputCell) => {
+    const [row, col] = selectedInputCell
+    let updatedSelectedDirection = this.state.selectedClue.direction
+    let updatedSelectedNumber = this.state.puzzle[row][col].clues[this.state.selectedClue.direction]
+
+    if (row === this.state.inputCell[0] && col === this.state.inputCell[1]) {
+      updatedSelectedDirection = updatedSelectedDirection === this.directions[0] ? this.directions[1] : this.directions[0]
+
+      if (this.state.puzzle[row][col].clues[updatedSelectedDirection] !== updatedSelectedNumber) {
+        updatedSelectedNumber = this.state.puzzle[row][col].clues[updatedSelectedDirection]
+      }
+    }
+
+    const updatedSelectedClue = {
+      direction: updatedSelectedDirection,
+      number: updatedSelectedNumber
+    }
+
+    this.setState(() => ({ inputCell: selectedInputCell, selectedClue: updatedSelectedClue }))
   }
 
   render () {
@@ -119,6 +136,7 @@ class App extends Component {
               inputCell={inputCell}
               puzzle={puzzle}
               selectedClue={selectedClue}
+              selectInputCell={this.selectInputCell}
             />
           }
 

@@ -5,39 +5,27 @@ import '../css/cell.css'
 // TODO - HOC for these iterations?
 
 function Cell (props) {
-  const { number, value } = props
+  const { cellClueNumber, inputClass, selectedClueClass, value } = props
+  const selectInputCell = () => {
+    props.selectInputCell(props.index)
+  }
 
   if (value === '.') {
     return <div className='cell block' />
   }
 
   return (
-    <div className={`cell${props.isInputCell ? ' input' : ''}`}>
+    <div
+      className={`cell ${inputClass + selectedClueClass}`}
+      onClick={selectInputCell}
+    >
       {
-        number !== 0 &&
-        <div className='number'>{number}</div>
+        cellClueNumber !== 0 &&
+        <div className='number'>{cellClueNumber}</div>
       }
-      {props.value}
+      <div className='value'>{value}</div>
     </div>
   )
 }
-
-// function Cell (props) {
-//   const { number, value } = props
-
-//   if (value === '.') {
-//     return <td className='cell block' />
-//   }
-
-//   return (
-//     <td className={`cell${props.isInputCell ? ' input' : ''}`}>
-//       {
-//         number !== 0 &&
-//         <div className='number'>{number}</div>
-//       }
-//       {props.value}
-//     </td>
-//   )
-// }
 
 export default Cell
