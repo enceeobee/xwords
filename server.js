@@ -8,6 +8,7 @@ app.use(cors({ allowedOrigins: ['localhost:3000'] }))
 
 app.get('/xword', (req, res, next) => {
   // TODO - remove date
+
   axios('https://www.xwordinfo.com/JSON/Data.aspx?format=text&date=3/18/2019', {
     headers: {
       'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -18,21 +19,8 @@ app.get('/xword', (req, res, next) => {
       Referer: 'https://www.xwordinfo.com/JSON/'
     }
   })
-    // .then(res => console.log(res.data))
-    // .then(({ data }) => {
-    //   // const scrubbedData = { ...data }
-    //   const decodedAcross = data.clues.across.map(decodeURIComponent)
-    //   const decodedDown = data.clues.down.map(decodeURIComponent)
-
-    //   console.log('decodedDown', decodedDown)
-
-    //   const decodedData = Object.assign({}, data, { ...data.clues, across: decodedAcross, down: decodedDown })
-
-    //   return Promise.resolve(decodedData)
-    // })
-    // .then(json => res.json(json))
     .then(({ data }) => res.json(data))
-    .catch(e => res.status(500).send(e))
+    .catch(e => res.status(500).send(e.toString()))
 })
 
 app.listen(3333, () => console.log('xwords listening on 3333'))

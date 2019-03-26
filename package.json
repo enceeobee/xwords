@@ -6,6 +6,7 @@
     "axios": "^0.18.0",
     "express": "^4.16.4",
     "express-cors": "^0.0.3",
+    "forever": "^0.15.3",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-scripts": "2.1.8",
@@ -15,6 +16,8 @@
     "lint": "standard",
     "lint-fix": "standard --fix",
     "server": "node server.js",
+    "server-background": "forever start server.js",
+    "server-stop": "forever stopall",
     "devserver": "nodemon server.js --watch server.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -34,7 +37,7 @@
     "standard": "^12.0.1"
   },
   "standard": {
-    "linter": "babel-eslint",
+    "parser": "babel-eslint",
     "global": [
       "beforeAll",
       "describe",
