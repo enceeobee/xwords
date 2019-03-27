@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import Clue from './Clue'
 import Puzzle from './Puzzle'
 
+import clonePuzzle from '../lib/clonePuzzle'
 import constructPuzzle from '../lib/constructPuzzle'
 import normalizeClues from '../lib/normalizeClues'
 import checkIsWinner from '../lib/checkIsWinner'
@@ -41,6 +42,7 @@ class App extends Component {
       .then(res => res.json())
       .then(body => {
         document.addEventListener('keyup', this.inputCharacter, false)
+        document.addEventListener('keydown', this.handleKeyDown, false)
 
         this.setState(() => ({ isLoading: false, rawPuzzle: body }), this.arrangePuzzle)
       })
@@ -52,6 +54,11 @@ class App extends Component {
 
   componentWillUnmount () {
     document.removeEventListener('keyup', this.inputCharacter, false)
+    document.addEventListener('keydown', this.handleKeyDown, false)
+  }
+
+  handleKeyDown (event) {
+    if (event.code === 'Space') event.preventDefault()
   }
 
   arrangePuzzle = () => {
@@ -64,34 +71,68 @@ class App extends Component {
   }
 
   selectClue = (number, direction) => {
-    // TODO - update input cell
-    this.setState(() => ({ selectedClue: { direction, number } }))
+    this.setState(() => ({
+      selectedClue: { direction, number },
+      inputCell: { ...this.state.numberCoords[number] }
+    }))
   }
 
   inputCharacter = (event) => {
-    // Ensure event.key is a letter
-    // TODO - allow other keys, e.g. space, backspace, numbers(?)
-    if (event.keyCode < 65 || event.keyCode > 90) return false
+    // TODO - arrow keys(?)
 
+    if (event.keyCode >= 65 && event.keyCode <= 90) {
+      return this.inputLetter(event.key.toUpperCase())
+    }
+
+    switch (event.code) {
+      case 'Space': {
+        this.selectInputCell([...this.state.inputCell])
+        break
+      }
+      case 'Backspace': {
+        // Clear the current cell ✅
+        // Find the next cell 'back'
+        // Make 'last cell' input cell
+        // Update selected clue
+        const puzzle = clonePuzzle(this.state.puzzle)
+        const [row, col] = this.state.inputCell
+
+        puzzle[row][col].input = ''
+
+        this.setState(() => ({ puzzle }))
+
+        break
+      }
+      default: {
+        return false
+      }
+    }
+  }
+
+  inputLetter = (letter) => {
     // Add it to the puzzle
     // TODO - is there not a better way to do this???
-    const puzzle = this.state.puzzle.map(r => r.map(c => ({ ...c })))
-    const [row, col] = this.state.inputCell
+    // const puzzle = this.state.puzzle.map(r => r.map(c => ({ ...c })))
+    const puzzle = clonePuzzle(this.state.puzzle)
+    const { inputCell, selectedClue } = this.state
+    const [row, col] = inputCell
 
-    puzzle[row][col].input = event.key.toUpperCase()
+    puzzle[row][col].input = letter
 
     this.setState(() => ({ puzzle }), () => {
-      // Check if winner
       if (checkIsWinner(this.state.puzzle)) {
-        console.log('TODO - YOU ARE A WINNER')
+        alert('TODO - YOU ARE A WINNER')
       }
 
       // Move input cell in proper direction
-      const nextInputCell = findNextInputCell(this.state.puzzle, this.state.inputCell, this.state.selectedClue.direction)
+      const nextInputCell = findNextInputCell(this.state.puzzle, inputCell, selectedClue.direction)
+      const [row, col] = nextInputCell
+      const nextSelectedClueNumber = puzzle[row][col].clues[selectedClue.direction]
 
-      // TODO - Update selected clue if necessary
-
-      this.setState(() => ({ inputCell: nextInputCell }))
+      this.setState(() => ({
+        inputCell: nextInputCell,
+        selectedClue: { ...selectedClue, number: nextSelectedClueNumber }
+      }))
     })
   }
 
