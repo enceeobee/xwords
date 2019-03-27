@@ -7,9 +7,12 @@ const app = express()
 app.use(cors({ allowedOrigins: ['localhost:3000'] }))
 
 app.get('/xword', (req, res, next) => {
-  // TODO - remove date
+  const params = { format: 'text' }
 
-  axios('https://www.xwordinfo.com/JSON/Data.aspx?format=text&date=3/18/2019', {
+  if (req.query.date) params.date = req.query.date
+
+  axios('https://www.xwordinfo.com/JSON/Data.aspx', {
+    params,
     headers: {
       'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
       'accept-language': 'en-US,en;q=0.9',

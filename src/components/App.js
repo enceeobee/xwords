@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import Calendar from 'react-calendar'
 
 import Clue from './Clue'
 import Puzzle from './Puzzle'
@@ -20,6 +21,7 @@ class App extends Component {
         across: [],
         down: []
       },
+      date: new Date(),
       entries: [],
       inputCell: [0, 0],
       isLoading: false,
@@ -36,9 +38,27 @@ class App extends Component {
   }
 
   componentDidMount () {
-    this.setState(() => ({ isLoading: true }))
+    this.loadPuzzle()
+  }
 
-    fetch('http://localhost:3333/xword')
+  componentWillUnmount () {
+    document.removeEventListener('keyup', this.inputCharacter, false)
+    document.addEventListener('keydown', this.handleKeyDown, false)
+  }
+
+  handleKeyDown (event) {
+    if (event.code === 'Space') event.preventDefault()
+  }
+
+  loadPuzzle = () => {
+    // TODO - Check if puzzle is already in localStorage
+
+    this.setState(() => ({ isLoading: true, puzzle: [], rawPuzzle: {}, clues: { across: [], down: [] } }))
+
+    const { date } = this.state
+    const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+
+    fetch(`http://localhost:3333/xword?date=${formattedDate}`)
       .then(res => res.json())
       .then(body => {
         document.addEventListener('keyup', this.inputCharacter, false)
@@ -52,15 +72,6 @@ class App extends Component {
       })
   }
 
-  componentWillUnmount () {
-    document.removeEventListener('keyup', this.inputCharacter, false)
-    document.addEventListener('keydown', this.handleKeyDown, false)
-  }
-
-  handleKeyDown (event) {
-    if (event.code === 'Space') event.preventDefault()
-  }
-
   arrangePuzzle = () => {
     const { clues, grid, gridnums, size } = this.state.rawPuzzle
     const { numberCoords, constructedPuzzle: puzzle } = constructPuzzle(grid, gridnums, size)
@@ -68,6 +79,14 @@ class App extends Component {
     const down = normalizeClues(clues.down, 'down')
 
     this.setState(() => ({ puzzle, numberCoords, clues: { across, down } }))
+  }
+
+  selectDate = (date) => {
+    if (date.toISOString() === this.state.date.toISOString()) return false
+
+    this.setState({ date }, () => {
+      this.loadPuzzle()
+    })
   }
 
   selectClue = (number, direction) => {
@@ -165,6 +184,13 @@ class App extends Component {
         <div className='header'>
           <h1>{rawPuzzle.title}</h1>
           <div>By {rawPuzzle.author}</div>
+          <div className='calendar'>
+            <Calendar
+              onChange={this.selectDate}
+              value={this.state.date}
+              maxDate={new Date()}
+            />
+          </div>
         </div>
         <div className='puzzle-area'>
           {
