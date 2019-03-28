@@ -30,6 +30,7 @@
   text-align: left;
 }
 
+/* Props to https://vanseodesign.com/css/vertical-centering/ */
 .value {
   position: absolute;
   top: 0;

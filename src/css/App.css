@@ -31,3 +31,13 @@
   max-height: 500px;
   overflow: scroll;
 }
+
+.date-link {
+  color: #69c;
+  display: inline;
+  cursor: pointer;
+}
+
+.date-link:hover {
+  text-decoration: underline;
+}

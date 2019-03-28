@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import ReactDOM from 'react-dom'
 import Calendar from 'react-calendar'
 
 import Clue from './Clue'
@@ -22,6 +23,7 @@ class App extends Component {
         down: []
       },
       date: new Date(),
+      isModalVisible: false,
       entries: [],
       inputCell: [0, 0],
       isLoading: false,
@@ -64,11 +66,11 @@ class App extends Component {
         document.addEventListener('keyup', this.inputCharacter, false)
         document.addEventListener('keydown', this.handleKeyDown, false)
 
-        this.setState(() => ({ isLoading: false, rawPuzzle: body }), this.arrangePuzzle)
+        this.setState(() => ({ isLoading: false, isModalVisible: false, rawPuzzle: body }), this.arrangePuzzle)
       })
       .catch(e => {
         console.error(e)
-        this.setState(() => ({ isLoading: false }))
+        this.setState(() => ({ isLoading: false, isModalVisible: false }))
       })
   }
 
@@ -105,8 +107,7 @@ class App extends Component {
 
     switch (event.code) {
       case 'Space': {
-        this.selectInputCell([...this.state.inputCell])
-        break
+        return this.selectInputCell([...this.state.inputCell])
       }
       case 'Backspace': {
         // Clear the current cell ✅
@@ -118,8 +119,12 @@ class App extends Component {
 
         puzzle[row][col].input = ''
 
-        this.setState(() => ({ puzzle }))
-
+        return this.setState(() => ({ puzzle }))
+      }
+      case 'Escape': {
+        if (this.state.isModalVisible) {
+          this.toggleModal()
+        }
         break
       }
       default: {
@@ -176,22 +181,25 @@ class App extends Component {
     this.setState(() => ({ inputCell: selectedInputCell, selectedClue: updatedSelectedClue }))
   }
 
+  toggleModal = () => {
+    this.setState({ isModalVisible: !this.state.isModalVisible })
+  }
+
   render () {
-    const { clues, puzzle, inputCell, isLoading, rawPuzzle, selectedClue } = this.state
+    const { clues, date, puzzle, inputCell, isLoading, rawPuzzle, selectedClue } = this.state
 
     return (
       <div className='App'>
         <div className='header'>
-          <h1>{rawPuzzle.title}</h1>
-          <div>By {rawPuzzle.author}</div>
-          <div className='calendar'>
-            <Calendar
-              onChange={this.selectDate}
-              value={this.state.date}
-              maxDate={new Date()}
-            />
+          <div className='title'>
+            <h1>{rawPuzzle.hastitle ? rawPuzzle.title : 'Daily Crossword'}</h1>
           </div>
+          <p className='date-link' onClick={() => this.setState({ isModalVisible: true })}>
+            {`${date.toLocaleString('en-us', { weekday: 'long' })}, ${date.toLocaleString('en-us', { month: 'long' })} ${date.getDate()}, ${date.getFullYear()}`}
+          </p>
+          <p>By {rawPuzzle.author}</p>
         </div>
+
         <div className='puzzle-area'>
           {
             isLoading &&
@@ -229,6 +237,26 @@ class App extends Component {
             ))
           }
         </div>
+
+        {
+          this.state.isModalVisible &&
+          ReactDOM.createPortal(
+            <div className='modal-container'>
+              <div
+                className='modal-background'
+                onClick={this.toggleModal}
+              />
+              <div className='calendar-modal'>
+                <Calendar
+                  calendarType='US'
+                  onChange={this.selectDate}
+                  value={this.state.date}
+                  maxDate={new Date()}
+                />
+              </div>
+            </div>
+            , document.getElementById('modalRoot'))
+        }
       </div>
     )
   }
