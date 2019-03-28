@@ -211,6 +211,7 @@ class App extends Component {
               inputCell={inputCell}
               puzzle={puzzle}
               selectedClue={selectedClue}
+              selectedClueText={this.state.clues[selectedClue.direction].find(c => c.number === selectedClue.number).text}
               selectInputCell={this.selectInputCell}
             />
           }

@@ -2,9 +2,24 @@
   border: #111 3px solid;
   border-spacing: 0;
   min-height: 500px;
-  margin-top: 66px;
+  margin-top: 20px;
 
   display: grid;
   grid-gap: 0px;
 }
 
+.selected-clue-header {
+  background-color: #eee;
+  padding: 20px 10px;
+  border-radius: 4px;
+}
+
+.selected-clue-header h3 {
+  padding: 0;
+  margin: 0;
+}
+
+.selected-clue-text {
+  margin-left: 5px;
+  font-weight: normal;
+}
