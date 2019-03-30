@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { BLOCK } from '../lib/constants'
+
 import '../css/cell.css'
 
 // TODO - HOC for these iterations?
@@ -10,7 +12,7 @@ function Cell (props) {
     props.selectInputCell(props.index)
   }
 
-  if (value === '.') {
+  if (value === BLOCK) {
     return <div className='cell block' />
   }
 

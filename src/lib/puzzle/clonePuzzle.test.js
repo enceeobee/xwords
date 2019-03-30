@@ -1,10 +1,11 @@
 import clonePuzzle from './clonePuzzle'
+import { EMPTY } from '../constants'
 
 describe('clonePuzzle', () => {
   it('should maintain data', () => {
     const originalPuzzle = [
-      [{ input: '', value: 'a' }, { input: 'b', value: 'c' }],
-      [{ input: 'd', value: 'e' }, { input: '', value: 'f' }]
+      [{ input: EMPTY, value: 'a' }, { input: 'b', value: 'c' }],
+      [{ input: 'd', value: 'e' }, { input: EMPTY, value: 'f' }]
     ]
     const actual = clonePuzzle(originalPuzzle)
 
@@ -13,8 +14,8 @@ describe('clonePuzzle', () => {
 
   it('should not mutate input array', () => {
     const originalPuzzle = [
-      [{ input: '', value: 'a' }, { input: 'b', value: 'c' }],
-      [{ input: 'd', value: 'e' }, { input: '', value: 'f' }]
+      [{ input: EMPTY, value: 'a' }, { input: 'b', value: 'c' }],
+      [{ input: 'd', value: 'e' }, { input: EMPTY, value: 'f' }]
     ]
     const actual = clonePuzzle(originalPuzzle)
 

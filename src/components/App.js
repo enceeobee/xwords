@@ -5,11 +5,22 @@ import Calendar from 'react-calendar'
 import Clue from './Clue'
 import Puzzle from './Puzzle'
 
-import clonePuzzle from '../lib/clonePuzzle'
-import constructPuzzle from '../lib/constructPuzzle'
+import clonePuzzle from '../lib/puzzle/clonePuzzle'
+import constructPuzzle from '../lib/puzzle/constructPuzzle'
 import normalizeClues from '../lib/normalizeClues'
-import checkIsWinner from '../lib/checkIsWinner'
-import findNextInputCell from '../lib/findNextInputCell'
+import checkIsWinner from '../lib/puzzle/checkIsWinner'
+import jump from '../lib/cell/jump'
+import skip from '../lib/cell/skip'
+import step from '../lib/cell/step'
+import {
+  ACROSS,
+  BLOCK,
+  DOWN,
+  EMPTY,
+  UP,
+  RIGHT,
+  LEFT
+} from '../lib/constants'
 
 import '../css/App.css'
 
@@ -32,11 +43,11 @@ class App extends Component {
       rawPuzzle: {},
       selectedClue: {
         number: 1,
-        direction: 'across'
+        direction: ACROSS
       }
     }
 
-    this.directions = ['across', 'down']
+    this.directions = [ACROSS, DOWN]
   }
 
   componentDidMount () {
@@ -48,8 +59,20 @@ class App extends Component {
     document.addEventListener('keydown', this.handleKeyDown, false)
   }
 
-  handleKeyDown (event) {
-    if (event.code === 'Space') event.preventDefault()
+  handleKeyDown = (event) => {
+    switch (event.code) {
+      case 'ArrowUp':
+      case 'ArrowRight':
+      case 'ArrowDown':
+      case 'ArrowLeft': {
+        return this.handleArrowKey(event)
+      }
+      case 'Space':
+        event.preventDefault()
+        break
+      default:
+        return false
+    }
   }
 
   loadPuzzle = () => {
@@ -77,8 +100,8 @@ class App extends Component {
   arrangePuzzle = () => {
     const { clues, grid, gridnums, size } = this.state.rawPuzzle
     const { numberCoords, constructedPuzzle: puzzle } = constructPuzzle(grid, gridnums, size)
-    const across = normalizeClues(clues.across, 'across')
-    const down = normalizeClues(clues.down, 'down')
+    const across = normalizeClues(clues.across, ACROSS)
+    const down = normalizeClues(clues.down, DOWN)
 
     this.setState(() => ({ puzzle, numberCoords, clues: { across, down } }))
   }
@@ -94,13 +117,11 @@ class App extends Component {
   selectClue = (number, direction) => {
     this.setState(() => ({
       selectedClue: { direction, number },
-      inputCell: { ...this.state.numberCoords[number] }
+      inputCell: [...this.state.numberCoords[number]]
     }))
   }
 
   inputCharacter = (event) => {
-    // TODO - arrow keys(?)
-
     if (event.keyCode >= 65 && event.keyCode <= 90) {
       return this.inputLetter(event.key.toUpperCase())
     }
@@ -110,16 +131,7 @@ class App extends Component {
         return this.selectInputCell([...this.state.inputCell])
       }
       case 'Backspace': {
-        // Clear the current cell ✅
-        // Find the next cell 'back'
-        // Make 'last cell' input cell
-        // Update selected clue
-        const puzzle = clonePuzzle(this.state.puzzle)
-        const [row, col] = this.state.inputCell
-
-        puzzle[row][col].input = ''
-
-        return this.setState(() => ({ puzzle }))
+        return this.handleBackspace()
       }
       case 'Escape': {
         if (this.state.isModalVisible) {
@@ -133,10 +145,63 @@ class App extends Component {
     }
   }
 
+  handleBackspace = () => {
+    const puzzle = clonePuzzle(this.state.puzzle)
+    let [row, col] = this.state.inputCell
+
+    if (puzzle[row][col].input === EMPTY) {
+      if (this.state.selectedClue.direction === ACROSS) {
+        if (col === 0 || puzzle[row][col - 1].value === BLOCK) return false
+
+        col--
+      } else {
+        if (row === 0 || puzzle[row - 1][col].value === BLOCK) return false
+
+        row--
+      }
+    }
+
+    puzzle[row][col].input = EMPTY
+
+    this.setState(() => ({ puzzle, inputCell: [row, col] }))
+  }
+
+  handleArrowKey = (event) => {
+    const { inputCell, puzzle, selectedClue } = this.state
+    const arrowDirection = event.code.match(/Arrow(Up|Right|Down|Left)/)[1].toLowerCase()
+
+    let [nextRow, nextCol] = inputCell
+
+    if (event.shiftKey) {
+      const isSameAxis = (
+        ([LEFT, RIGHT].includes(arrowDirection) && selectedClue.direction === ACROSS) ||
+        ([UP, DOWN].includes(arrowDirection) && selectedClue.direction === DOWN)
+      )
+
+      if (!isSameAxis) {
+        [nextRow, nextCol] = step(puzzle, inputCell, arrowDirection)
+      } else {
+        [nextRow, nextCol] = jump(puzzle, inputCell, arrowDirection)
+      }
+    } else {
+      const doChangeDirection = (
+        ([LEFT, RIGHT].includes(arrowDirection) && selectedClue.direction === DOWN) ||
+        ([UP, DOWN].includes(arrowDirection) && selectedClue.direction === ACROSS)
+      )
+
+      if (doChangeDirection) {
+        return this.selectInputCell([...inputCell])
+      }
+
+      [nextRow, nextCol] = step(puzzle, inputCell, arrowDirection)
+    }
+
+    if (nextRow !== inputCell[0] || nextCol !== inputCell[1]) {
+      this.selectInputCell([nextRow, nextCol])
+    }
+  }
+
   inputLetter = (letter) => {
-    // Add it to the puzzle
-    // TODO - is there not a better way to do this???
-    // const puzzle = this.state.puzzle.map(r => r.map(c => ({ ...c })))
     const puzzle = clonePuzzle(this.state.puzzle)
     const { inputCell, selectedClue } = this.state
     const [row, col] = inputCell
@@ -148,15 +213,15 @@ class App extends Component {
         alert('TODO - YOU ARE A WINNER')
       }
 
-      // Move input cell in proper direction
-      const nextInputCell = findNextInputCell(this.state.puzzle, inputCell, selectedClue.direction)
-      const [row, col] = nextInputCell
-      const nextSelectedClueNumber = puzzle[row][col].clues[selectedClue.direction]
+      const nextCell = selectedClue.direction === ACROSS ? puzzle[row][col + 1] : puzzle[row + 1][col]
+      const isEndOfClue = !nextCell || nextCell.value === BLOCK
 
-      this.setState(() => ({
-        inputCell: nextInputCell,
-        selectedClue: { ...selectedClue, number: nextSelectedClueNumber }
-      }))
+      if (isEndOfClue) return false
+
+      const searchDirection = selectedClue.direction === DOWN ? DOWN : 'right'
+      const [nextRow, nextCol] = skip(this.state.puzzle, inputCell, searchDirection)
+
+      this.selectInputCell([nextRow, nextCol])
     })
   }
 

@@ -1,4 +1,8 @@
+import { BLOCK, EMPTY } from '../constants'
+
+
 // TODO - unit test!!!
+
 
 /**
  * We need to do the following things:
@@ -31,11 +35,11 @@ function constructPuzzle (grid, gridnums, size) {
       if (cellClueNumber > 0) {
         numberCoords[cellClueNumber] = [r, c]
 
-        if (c === 0 || row[c - 1].value === '.') {
+        if (c === 0 || row[c - 1].value === BLOCK) {
           currentAcrossClueNumber = cellClueNumber
         }
 
-        if (r === 0 || constructedPuzzle[r - 1][c].value === '.') {
+        if (r === 0 || constructedPuzzle[r - 1][c].value === BLOCK) {
           colToDownNumberMap[c] = cellClueNumber
         }
       }
@@ -48,7 +52,7 @@ function constructPuzzle (grid, gridnums, size) {
           across: currentAcrossClueNumber,
           down: colToDownNumberMap[c]
         },
-        input: (value === '.') ? value : ''
+        input: (value === BLOCK) ? value : EMPTY
       }
 
       row.push(cell)
