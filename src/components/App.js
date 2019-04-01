@@ -28,7 +28,7 @@ class App extends Component {
   constructor () {
     super()
 
-    this.state = {
+    this.initialState = {
       clues: {
         across: [],
         down: []
@@ -47,6 +47,7 @@ class App extends Component {
       }
     }
 
+    this.state = { ...this.initialState }
     this.directions = [ACROSS, DOWN]
   }
 
@@ -78,9 +79,9 @@ class App extends Component {
   loadPuzzle = () => {
     // TODO - Check if puzzle is already in localStorage
 
-    this.setState(() => ({ isLoading: true, puzzle: [], rawPuzzle: {}, clues: { across: [], down: [] } }))
-
     const { date } = this.state
+    this.setState(() => ({ ...this.initialState, date }))
+
     const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
 
     fetch(`http://localhost:3333/xword?date=${formattedDate}`)
@@ -121,6 +122,14 @@ class App extends Component {
     }))
   }
 
+  handleCellClick = ([row, col]) => {
+    const doToggleDirection = (row === this.state.inputCell[0] && col === this.state.inputCell[1])
+
+    this.selectInputCell([row, col])
+
+    if (doToggleDirection) this.toggleDirection()
+  }
+
   inputCharacter = (event) => {
     if (event.keyCode >= 65 && event.keyCode <= 90) {
       return this.inputLetter(event.key.toUpperCase())
@@ -128,7 +137,7 @@ class App extends Component {
 
     switch (event.code) {
       case 'Space': {
-        return this.selectInputCell([...this.state.inputCell])
+        return this.toggleDirection()
       }
       case 'Backspace': {
         return this.handleBackspace()
@@ -177,21 +186,15 @@ class App extends Component {
         ([LEFT, RIGHT].includes(arrowDirection) && selectedClue.direction === ACROSS) ||
         ([UP, DOWN].includes(arrowDirection) && selectedClue.direction === DOWN)
       )
-
-      if (!isSameAxis) {
-        [nextRow, nextCol] = step(puzzle, inputCell, arrowDirection)
-      } else {
-        [nextRow, nextCol] = jump(puzzle, inputCell, arrowDirection)
-      }
+      const move = isSameAxis ? jump : step;
+      [nextRow, nextCol] = move(puzzle, inputCell, arrowDirection)
     } else {
       const doChangeDirection = (
         ([LEFT, RIGHT].includes(arrowDirection) && selectedClue.direction === DOWN) ||
         ([UP, DOWN].includes(arrowDirection) && selectedClue.direction === ACROSS)
       )
 
-      if (doChangeDirection) {
-        return this.selectInputCell([...inputCell])
-      }
+      if (doChangeDirection) return this.toggleDirection();
 
       [nextRow, nextCol] = step(puzzle, inputCell, arrowDirection)
     }
@@ -205,6 +208,7 @@ class App extends Component {
     const puzzle = clonePuzzle(this.state.puzzle)
     const { inputCell, selectedClue } = this.state
     const [row, col] = inputCell
+    const isCellEmpty = puzzle[row][col].input === EMPTY
 
     puzzle[row][col].input = letter
 
@@ -213,29 +217,48 @@ class App extends Component {
         alert('TODO - YOU ARE A WINNER')
       }
 
+      // TODO - Maybe create separate functions for these checks
+      if (
+        (selectedClue.direction === ACROSS && col === puzzle[0].length - 1) ||
+        (selectedClue.direction === DOWN && row === puzzle.length - 1)
+      ) {
+        return false
+      }
+
       const nextCell = selectedClue.direction === ACROSS ? puzzle[row][col + 1] : puzzle[row + 1][col]
       const isEndOfClue = !nextCell || nextCell.value === BLOCK
 
       if (isEndOfClue) return false
 
       const searchDirection = selectedClue.direction === DOWN ? DOWN : 'right'
-      const [nextRow, nextCol] = skip(this.state.puzzle, inputCell, searchDirection)
+      const move = isCellEmpty ? skip : step
+      const [nextRow, nextCol] = move(this.state.puzzle, inputCell, searchDirection)
 
       this.selectInputCell([nextRow, nextCol])
     })
   }
 
-  selectInputCell = (selectedInputCell) => {
-    const [row, col] = selectedInputCell
-    let updatedSelectedDirection = this.state.selectedClue.direction
-    let updatedSelectedNumber = this.state.puzzle[row][col].clues[this.state.selectedClue.direction]
+  selectInputCell = (inputCell) => {
+    const [row, col] = inputCell
+    const { direction } = this.state.selectedClue
+    const updatedSelectedClue = {
+      direction,
+      number: this.state.puzzle[row][col].clues[direction]
+    }
 
-    if (row === this.state.inputCell[0] && col === this.state.inputCell[1]) {
-      updatedSelectedDirection = updatedSelectedDirection === this.directions[0] ? this.directions[1] : this.directions[0]
+    this.setState(() => ({ inputCell: [...inputCell], selectedClue: updatedSelectedClue }))
+  }
 
-      if (this.state.puzzle[row][col].clues[updatedSelectedDirection] !== updatedSelectedNumber) {
-        updatedSelectedNumber = this.state.puzzle[row][col].clues[updatedSelectedDirection]
-      }
+  toggleDirection = () => {
+    const [row, col] = this.state.inputCell
+    const { direction } = this.state.selectedClue
+    let updatedSelectedDirection = direction
+    let updatedSelectedNumber = this.state.puzzle[row][col].clues[direction]
+
+    updatedSelectedDirection = updatedSelectedDirection === this.directions[0] ? this.directions[1] : this.directions[0]
+
+    if (this.state.puzzle[row][col].clues[updatedSelectedDirection] !== updatedSelectedNumber) {
+      updatedSelectedNumber = this.state.puzzle[row][col].clues[updatedSelectedDirection]
     }
 
     const updatedSelectedClue = {
@@ -243,7 +266,7 @@ class App extends Component {
       number: updatedSelectedNumber
     }
 
-    this.setState(() => ({ inputCell: selectedInputCell, selectedClue: updatedSelectedClue }))
+    this.setState(() => ({ selectedClue: updatedSelectedClue }))
   }
 
   toggleModal = () => {
@@ -277,7 +300,7 @@ class App extends Component {
               puzzle={puzzle}
               selectedClue={selectedClue}
               selectedClueText={this.state.clues[selectedClue.direction].find(c => c.number === selectedClue.number).text}
-              selectInputCell={this.selectInputCell}
+              selectInputCell={this.handleCellClick}
             />
           }
 
