@@ -1,35 +1,31 @@
 import React, { PureComponent } from 'react'
+import PropTypes from 'prop-types'
 
 import '../css/clue.css'
 
 class Clue extends PureComponent {
   selectClue = () => {
-    this.props.selectClue(this.props.number, this.props.direction)
+    this.props.handleClick(this.props.number, this.props.direction)
   }
 
   render () {
     return (
       <li
-        className={`clue${this.props.isSelected ? ' selected' : ''}`}
+        className={'clue' + this.props.selectedClass}
         onClick={this.selectClue}
       >
-        {/* {decodeURIComponent(props.clue)} */}
-        {this.props.number} {this.props.text.replace(/&quot;/g, '"')}
+        {this.props.number} {this.props.text}
       </li>
     )
   }
 }
 
-// function Clue (props) {
-//   return (
-//     <li
-//       className={`clue${props.isSelected ? ' selected' : ''}`}
-//       onClick={props.selectClue}
-//     >
-//       {/* {decodeURIComponent(props.clue)} */}
-//       {props.clue}
-//     </li>
-//   )
-// }
+Clue.propTypes = {
+  number: PropTypes.number,
+  direction: PropTypes.string,
+  selectClue: PropTypes.func,
+  selectedClass: PropTypes.string,
+  text: PropTypes.string
+}
 
 export default Clue
