@@ -9,17 +9,24 @@
 }
 
 .selected-clue-header {
-  background-color: #eee;
-  padding: 20px 10px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-content: center;
+  grid-gap: 20px 10px;
+
+  background: var(--selected-clue-color);
+  padding: 0 10px;
   border-radius: 4px;
+  min-height: 60px;
 }
 
-.selected-clue-header h3 {
-  padding: 0;
-  margin: 0;
+.selected-clue-number {
+  font-weight: bold;
+  align-self: center;
 }
 
 .selected-clue-text {
+  align-self: center;
   margin-left: 5px;
   font-weight: normal;
 }

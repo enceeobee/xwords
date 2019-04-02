@@ -1,5 +1,6 @@
 .cell {
   cursor: pointer;
+  user-select: none;
   position: relative;
   text-align: center;
   border: #333 1px solid;
@@ -43,9 +44,9 @@
 }
 
 .selected-clue {
-  background-color: #c1c9d1;
+  background: var(--selected-clue-color);
 }
 
 .input {
-  background-color: #d1b440;
+  background: var(--selected-input-color);
 }

@@ -8,10 +8,8 @@ function Puzzle (props) {
   return (
     <div className='puzzle-container'>
       <div className='selected-clue-header'>
-        <h3>
-          {props.selectedClue.number}{props.selectedClue.direction[0].toUpperCase()}
-          <span className='selected-clue-text'>{props.selectedClueText}</span>
-        </h3>
+        <div className='selected-clue-number'>{props.selectedClue.number}{props.selectedClue.direction[0].toUpperCase()}</div>
+        <div className='selected-clue-text'>{props.selectedClueText}</div>
       </div>
 
       <div

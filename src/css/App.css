@@ -1,20 +1,23 @@
+:root {
+  --selected-input-color: #96dfcc;
+  --selected-clue-color: #e2e2e1;
+  --link-color: #69c;
+}
+
 .App {
   max-width: 1200px;
   margin: auto;
-}
-
-.header {
-
+  padding: 0 10px;
 }
 
 .puzzle-area {
   display: grid;
-  grid-template-columns: [board] 2fr [across] 1fr [down] 1fr;
+  grid-template-columns: [puzzle] 2fr [across] 1fr [down] 1fr;
   grid-gap: 10px;
 }
 
-.board{
-  grid-column: board;
+.puzzle-container {
+  grid-column: puzzle;
 }
 
 .across{
@@ -25,6 +28,15 @@
   grid-column: down;
 }
 
+@media (max-width: 700px) {
+  .puzzle-area {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "puzzle puzzle"
+      "across down";
+  }
+}
+
 .clues {
   margin: 0;
   padding: 0;
@@ -33,7 +45,7 @@
 }
 
 .date-link {
-  color: #69c;
+  color: var(--link-color);
   display: inline;
   cursor: pointer;
 }

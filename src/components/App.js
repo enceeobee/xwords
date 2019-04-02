@@ -1,17 +1,19 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import Calendar from 'react-calendar'
 
-import Clue from './Clue'
+import Clues from './Clues'
+import Header from './Header'
+import Modal from './Modal'
 import Puzzle from './Puzzle'
 
 import clonePuzzle from '../lib/puzzle/clonePuzzle'
 import constructPuzzle from '../lib/puzzle/constructPuzzle'
-import normalizeClues from '../lib/normalizeClues'
+import normalizeClues from '../lib/clue/normalizeClues'
 import checkIsWinner from '../lib/puzzle/checkIsWinner'
 import jump from '../lib/cell/jump'
 import skip from '../lib/cell/skip'
 import step from '../lib/cell/step'
+import formatDate from '../lib/puzzle/formatDate'
 import {
   ACROSS,
   BLOCK,
@@ -57,7 +59,7 @@ class App extends Component {
 
   componentWillUnmount () {
     document.removeEventListener('keyup', this.inputCharacter, false)
-    document.addEventListener('keydown', this.handleKeyDown, false)
+    document.removeEventListener('keydown', this.handleKeyDown, false)
   }
 
   handleKeyDown = (event) => {
@@ -278,15 +280,13 @@ class App extends Component {
 
     return (
       <div className='App'>
-        <div className='header'>
-          <div className='title'>
-            <h1>{rawPuzzle.hastitle ? rawPuzzle.title : 'Daily Crossword'}</h1>
-          </div>
-          <p className='date-link' onClick={() => this.setState({ isModalVisible: true })}>
-            {`${date.toLocaleString('en-us', { weekday: 'long' })}, ${date.toLocaleString('en-us', { month: 'long' })} ${date.getDate()}, ${date.getFullYear()}`}
-          </p>
-          <p>By {rawPuzzle.author}</p>
-        </div>
+        <Header
+          openModal={this.toggleModal}
+          author={rawPuzzle.author}
+          date={formatDate(date)}
+          hastitle={rawPuzzle.hastitle}
+          title={rawPuzzle.title}
+        />
 
         <div className='puzzle-area'>
           {
@@ -305,24 +305,14 @@ class App extends Component {
           }
 
           {
-            this.directions.map((direction) => (
-              <div key={`direction-${direction}`} className={direction}>
-                <h4>{direction[0].toUpperCase() + direction.slice(1)}</h4>
-                <ul className='clues'>
-                  {
-                    clues[direction].map((clue, i) => (
-                      <Clue
-                        key={i}
-                        text={clue.text}
-                        isSelected={selectedClue.direction === direction && selectedClue.number === clue.number}
-                        direction={direction}
-                        number={clue.number}
-                        selectClue={this.selectClue}
-                      />
-                    ))
-                  }
-                </ul>
-              </div>
+            this.directions.map((direction, i) => (
+              <Clues
+                key={`${i}-${direction}`}
+                clues={clues[direction]}
+                direction={direction}
+                selectedClue={selectedClue}
+                handleClick={this.selectClue}
+              />
             ))
           }
         </div>
@@ -330,20 +320,11 @@ class App extends Component {
         {
           this.state.isModalVisible &&
           ReactDOM.createPortal(
-            <div className='modal-container'>
-              <div
-                className='modal-background'
-                onClick={this.toggleModal}
-              />
-              <div className='calendar-modal'>
-                <Calendar
-                  calendarType='US'
-                  onChange={this.selectDate}
-                  value={this.state.date}
-                  maxDate={new Date()}
-                />
-              </div>
-            </div>
+            <Modal
+              date={this.state.date}
+              handleClick={this.toggleModal}
+              handleChange={this.selectDate}
+            />
             , document.getElementById('modalRoot'))
         }
       </div>

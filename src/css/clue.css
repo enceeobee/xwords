@@ -5,5 +5,5 @@
 }
 
 .selected {
-  background-color: #c1c9d1;
+  background: var(--selected-clue-color);
 }
