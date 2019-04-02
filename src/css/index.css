@@ -13,10 +13,6 @@ code {
     monospace;
 }
 
-.modal-container {
-
-}
-
 .modal-background {
   position: absolute;
   height: 100%;
@@ -29,10 +25,15 @@ code {
   left: 0;
 }
 
-.calendar-modal {
+.modal-body {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  opacity: 1;
+}
+
+.message {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
 }

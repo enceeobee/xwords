@@ -8,6 +8,7 @@ import Puzzle from './Puzzle'
 
 import clonePuzzle from '../lib/puzzle/clonePuzzle'
 import constructPuzzle from '../lib/puzzle/constructPuzzle'
+import determineIfFull from '../lib/puzzle/determineIfFull'
 import normalizeClues from '../lib/clue/normalizeClues'
 import checkIsWinner from '../lib/puzzle/checkIsWinner'
 import jump from '../lib/cell/jump'
@@ -36,7 +37,7 @@ class App extends Component {
         down: []
       },
       date: new Date(),
-      isModalVisible: false,
+      modalType: '',
       entries: [],
       inputCell: [0, 0],
       isLoading: false,
@@ -92,11 +93,11 @@ class App extends Component {
         document.addEventListener('keyup', this.inputCharacter, false)
         document.addEventListener('keydown', this.handleKeyDown, false)
 
-        this.setState(() => ({ isLoading: false, isModalVisible: false, rawPuzzle: body }), this.arrangePuzzle)
+        this.setState(() => ({ isLoading: false, modalType: '', rawPuzzle: body }), this.arrangePuzzle)
       })
       .catch(e => {
         console.error(e)
-        this.setState(() => ({ isLoading: false, isModalVisible: false }))
+        this.setState(() => ({ isLoading: false, modalType: '' }))
       })
   }
 
@@ -145,8 +146,8 @@ class App extends Component {
         return this.handleBackspace()
       }
       case 'Escape': {
-        if (this.state.isModalVisible) {
-          this.toggleModal()
+        if (this.state.modalType.length > 0) {
+          this.toggleModal('')
         }
         break
       }
@@ -215,8 +216,9 @@ class App extends Component {
     puzzle[row][col].input = letter
 
     this.setState(() => ({ puzzle }), () => {
-      if (checkIsWinner(this.state.puzzle)) {
-        alert('TODO - YOU ARE A WINNER')
+      if (determineIfFull(this.state.puzzle)) {
+        if (checkIsWinner(this.state.puzzle)) this.toggleModal('correct')
+        else this.toggleModal('incorrect')
       }
 
       // TODO - Maybe create separate functions for these checks
@@ -232,7 +234,7 @@ class App extends Component {
 
       if (isEndOfClue) return false
 
-      const searchDirection = selectedClue.direction === DOWN ? DOWN : 'right'
+      const searchDirection = selectedClue.direction === DOWN ? DOWN : RIGHT
       const move = isCellEmpty ? skip : step
       const [nextRow, nextCol] = move(this.state.puzzle, inputCell, searchDirection)
 
@@ -271,8 +273,8 @@ class App extends Component {
     this.setState(() => ({ selectedClue: updatedSelectedClue }))
   }
 
-  toggleModal = () => {
-    this.setState({ isModalVisible: !this.state.isModalVisible })
+  toggleModal = (type = '') => {
+    this.setState({ modalType: type })
   }
 
   render () {
@@ -318,12 +320,13 @@ class App extends Component {
         </div>
 
         {
-          this.state.isModalVisible &&
+          this.state.modalType.length > 0 &&
           ReactDOM.createPortal(
             <Modal
               date={this.state.date}
               handleClick={this.toggleModal}
               handleChange={this.selectDate}
+              type={this.state.modalType}
             />
             , document.getElementById('modalRoot'))
         }
