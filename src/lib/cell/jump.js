@@ -26,12 +26,17 @@ function getStepFunction (direction) {
 
 function jumpUp (row, col, puzzle) {
   const moveUpFn = moveUp(row, col, puzzle)
-  let blockCount = 0
+  let hasEncounteredBlock = false
+  let hasEncounteredCell = false
   let topBlankCellRow = row
 
   const determineStop = (r) => {
-    if (puzzle[r - 1][col].value === BLOCK && ++blockCount > 1) {
-      return true
+    if (puzzle[r - 1][col].value === BLOCK) {
+      if (hasEncounteredBlock && hasEncounteredCell) return true
+
+      hasEncounteredBlock = true
+    } else {
+      if (hasEncounteredBlock) hasEncounteredCell = true
     }
 
     if (puzzle[r - 1][col].input === EMPTY && r - 1 < topBlankCellRow) {
@@ -61,12 +66,17 @@ function jumpRight (row, col, puzzle) {
 
 function jumpLeft (row, col, puzzle) {
   const moveLeftFn = moveLeft(row, col, puzzle)
-  let blockCount = 0
+  let hasEncounteredBlock = false
+  let hasEncounteredCell = false
   let leftmostBlankColumn = col
 
   const determineStop = (c) => {
-    if (puzzle[row][c - 1].value === BLOCK && ++blockCount > 1) {
-      return true
+    if (puzzle[row][c - 1].value === BLOCK) {
+      if (hasEncounteredBlock && hasEncounteredCell) return true
+
+      hasEncounteredBlock = true
+    } else {
+      if (hasEncounteredBlock) hasEncounteredCell = true
     }
 
     if (puzzle[row][c - 1].input === EMPTY && c - 1 < leftmostBlankColumn) {

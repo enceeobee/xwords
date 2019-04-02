@@ -54,6 +54,23 @@ describe('jump', () => {
       actual = jump(puzzle, startCell, direction)
 
       expect(actual).toEqual(expected)
+
+      // Should jump multiple blocks
+      puzzle = [
+        [{ input: EMPTY, value: 't' }],
+        [{ input: 'a', value: 'a' }],
+        [{ input: EMPTY, value: 'a' }],
+        [{ input: BLOCK, value: BLOCK }],
+        [{ input: BLOCK, value: BLOCK }],
+        [{ input: EMPTY, value: 'b' }],
+        [{ input: EMPTY, value: 'c' }],
+        [{ input: EMPTY, value: 'd' }]
+      ]
+      startCell = [6, 0]
+      expected = [0, 0]
+      actual = jump(puzzle, startCell, direction)
+
+      expect(actual).toEqual(expected)
     })
 
     it('should retain position if at top of puzzle', () => {
@@ -225,6 +242,49 @@ describe('jump', () => {
       ]
       startCell = [0, 7]
       expected = [0, 1]
+      actual = jump(puzzle, startCell, direction)
+
+      expect(actual).toEqual(expected)
+
+      puzzle = [
+        [
+          { input: 'a', value: 'a' },
+          { input: 'b', value: 'b' },
+          { input: 'c', value: 'b' },
+          { input: BLOCK, value: BLOCK },
+          { input: EMPTY, value: EMPTY },
+          { input: EMPTY, value: EMPTY },
+          { input: EMPTY, value: EMPTY },
+          { input: BLOCK, value: BLOCK },
+          { input: BLOCK, value: BLOCK },
+          { input: 'd', value: 'e' },
+          { input: EMPTY, value: EMPTY }
+        ]
+      ]
+      startCell = [0, 9]
+      expected = [0, 4]
+      actual = jump(puzzle, startCell, direction)
+
+      expect(actual).toEqual(expected)
+
+      puzzle = [
+        [
+          { input: 'a', value: 'a' },
+          { input: 'b', value: 'b' },
+          { input: 'c', value: 'b' },
+          { input: BLOCK, value: BLOCK },
+          { input: EMPTY, value: EMPTY },
+          { input: EMPTY, value: EMPTY },
+          { input: EMPTY, value: EMPTY },
+          { input: BLOCK, value: BLOCK },
+          { input: BLOCK, value: BLOCK },
+          { input: 'd', value: 'e' },
+          { input: EMPTY, value: EMPTY },
+          { input: 'd', value: 'e' }
+        ]
+      ]
+      startCell = [0, 11]
+      expected = [0, 4]
       actual = jump(puzzle, startCell, direction)
 
       expect(actual).toEqual(expected)
