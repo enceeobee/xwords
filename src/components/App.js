@@ -6,6 +6,8 @@ import Header from './Header'
 import Modal from './Modal'
 import Puzzle from './Puzzle'
 
+import examples from '../examples'
+
 import clonePuzzle from '../lib/puzzle/clonePuzzle'
 import constructPuzzle from '../lib/puzzle/constructPuzzle'
 import determineIfFull from '../lib/puzzle/determineIfFull'
@@ -36,7 +38,7 @@ class App extends Component {
         across: [],
         down: []
       },
-      date: new Date(),
+      date: new Date(examples[0].date),
       modalType: '',
       entries: [],
       inputCell: [0, 0],
@@ -56,6 +58,8 @@ class App extends Component {
 
   componentDidMount () {
     this.loadPuzzle()
+    document.addEventListener('keyup', this.inputCharacter, false)
+    document.addEventListener('keydown', this.handleKeyDown, false)
   }
 
   componentWillUnmount () {
@@ -80,25 +84,9 @@ class App extends Component {
   }
 
   loadPuzzle = () => {
-    // TODO - Check if puzzle is already in localStorage
+    const rawPuzzle = examples.find(example => new Date(example.date).toISOString() === this.state.date.toISOString()) || examples[0]
 
-    const { date } = this.state
-    this.setState(() => ({ ...this.initialState, date }))
-
-    const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
-
-    fetch(`http://localhost:3333/xword?date=${formattedDate}`)
-      .then(res => res.json())
-      .then(body => {
-        document.addEventListener('keyup', this.inputCharacter, false)
-        document.addEventListener('keydown', this.handleKeyDown, false)
-
-        this.setState(() => ({ isLoading: false, modalType: '', rawPuzzle: body }), this.arrangePuzzle)
-      })
-      .catch(e => {
-        console.error(e)
-        this.setState(() => ({ isLoading: false, modalType: '' }))
-      })
+    this.setState(() => ({ isLoading: false, modalType: '', rawPuzzle }), this.arrangePuzzle)
   }
 
   arrangePuzzle = () => {
