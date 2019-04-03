@@ -1,10 +1,12 @@
 const axios = require('axios')
 const express = require('express')
 const cors = require('express-cors')
+const helmet = require('helmet')
 
 const app = express()
 
-app.use(cors({ allowedOrigins: ['localhost:3000'] }))
+app.use(helmet())
+app.use(cors({ allowedOrigins: ['localhost:3000', 'localhost:5000'] }))
 
 app.get('/xword', (req, res, next) => {
   const params = { format: 'text' }
