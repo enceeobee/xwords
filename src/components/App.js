@@ -6,6 +6,8 @@ import Header from './Header'
 import Modal from './Modal'
 import Puzzle from './Puzzle'
 
+import examples from '../examples'
+
 import clonePuzzle from '../lib/puzzle/clonePuzzle'
 import constructPuzzle from '../lib/puzzle/constructPuzzle'
 import determineIfFull from '../lib/puzzle/determineIfFull'
@@ -41,6 +43,7 @@ class App extends Component {
       entries: [],
       inputCell: [0, 0],
       isLoading: false,
+      isOnline: true,
       numberCoords: {},
       puzzle: [],
       rawPuzzle: {},
@@ -69,6 +72,7 @@ class App extends Component {
       case 'ArrowRight':
       case 'ArrowDown':
       case 'ArrowLeft': {
+        event.preventDefault()
         return this.handleArrowKey(event)
       }
       case 'Tab': {
@@ -101,7 +105,19 @@ class App extends Component {
       })
       .catch(e => {
         console.error(e)
-        this.setState(() => ({ isLoading: false, modalType: '' }))
+
+        document.addEventListener('keyup', this.inputCharacter, false)
+        document.addEventListener('keydown', this.handleKeyDown, false)
+
+        const rawPuzzle = examples.find(example => new Date(example.date).toISOString() === date.toISOString()) || examples[0]
+
+        this.setState(() => ({
+          rawPuzzle,
+          isLoading: false,
+          isOnline: false,
+          modalType: '',
+          date: new Date(rawPuzzle.date)
+        }), this.arrangePuzzle)
       })
   }
 
@@ -305,6 +321,7 @@ class App extends Component {
           author={rawPuzzle.author}
           date={formatDate(date)}
           hastitle={rawPuzzle.hastitle}
+          isOnline={this.state.isOnline}
           title={rawPuzzle.title}
         />
 

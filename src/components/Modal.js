@@ -2,6 +2,10 @@ import React from 'react'
 import Calendar from 'react-calendar'
 import PropTypes from 'prop-types'
 
+import examples from '../examples'
+
+import '../css/modal.css'
+
 function Modal (props) {
   return (
     <div className='modal-container'>
@@ -18,6 +22,24 @@ function Modal (props) {
             value={props.date}
             maxDate={new Date()}
           />
+        }
+
+        {
+          props.type === 'examples' &&
+          <ul className='message'>
+            <h3>Please select from the following example puzzles:</h3>
+            {
+              examples.map(example => (
+                <li
+                  key={example.date}
+                  onClick={() => props.handleChange(new Date(example.date))}
+                  className='example-puzzle'
+                >
+                  {example.dow}, {example.date}
+                </li>
+              ))
+            }
+          </ul>
         }
 
         {
