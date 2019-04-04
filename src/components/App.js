@@ -71,6 +71,10 @@ class App extends Component {
       case 'ArrowLeft': {
         return this.handleArrowKey(event)
       }
+      case 'Tab': {
+        event.preventDefault()
+        return this.handleTab(event)
+      }
       case 'Space':
         event.preventDefault()
         break
@@ -205,6 +209,22 @@ class App extends Component {
     if (nextRow !== inputCell[0] || nextCol !== inputCell[1]) {
       this.selectInputCell([nextRow, nextCol])
     }
+  }
+
+  handleTab = ({ shiftKey }) => {
+    const arrowEvent = { shiftKey: true }
+    const { direction } = this.state.selectedClue
+    let arrowKey = 'Arrow'
+
+    if (direction === ACROSS) {
+      arrowKey += shiftKey ? 'Left' : 'Right'
+    } else {
+      arrowKey += shiftKey ? 'Up' : 'Down'
+    }
+
+    arrowEvent.code = arrowKey
+
+    this.handleArrowKey(arrowEvent)
   }
 
   inputLetter = (letter) => {
