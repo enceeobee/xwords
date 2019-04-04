@@ -1,0 +1,15 @@
+{
+  "main.css": "/xwords/static/css/main.e431e101.chunk.css",
+  "main.js": "/xwords/static/js/main.c5bf55d1.chunk.js",
+  "main.js.map": "/xwords/static/js/main.c5bf55d1.chunk.js.map",
+  "runtime~main.js": "/xwords/static/js/runtime~main.42fedd96.js",
+  "runtime~main.js.map": "/xwords/static/js/runtime~main.42fedd96.js.map",
+  "static/css/2.72baefdb.chunk.css": "/xwords/static/css/2.72baefdb.chunk.css",
+  "static/js/2.f3827dbd.chunk.js": "/xwords/static/js/2.f3827dbd.chunk.js",
+  "static/js/2.f3827dbd.chunk.js.map": "/xwords/static/js/2.f3827dbd.chunk.js.map",
+  "index.html": "/xwords/index.html",
+  "precache-manifest.06845ef9841d5e8db2c0f68e8cedc3eb.js": "/xwords/precache-manifest.06845ef9841d5e8db2c0f68e8cedc3eb.js",
+  "service-worker.js": "/xwords/service-worker.js",
+  "static/css/2.72baefdb.chunk.css.map": "/xwords/static/css/2.72baefdb.chunk.css.map",
+  "static/css/main.e431e101.chunk.css.map": "/xwords/static/css/main.e431e101.chunk.css.map"
+}
