@@ -87,7 +87,7 @@ class App extends Component {
     // TODO - Check if puzzle is already in localStorage
 
     const { date } = this.state
-    this.setState(() => ({ ...this.initialState, date }))
+    this.setState(() => ({ ...this.initialState, date, isLoading: true }))
 
     const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
 
@@ -117,9 +117,7 @@ class App extends Component {
   selectDate = (date) => {
     if (date.toISOString() === this.state.date.toISOString()) return false
 
-    this.setState({ date }, () => {
-      this.loadPuzzle()
-    })
+    this.setState({ date }, this.loadPuzzle)
   }
 
   selectClue = (number, direction) => {
@@ -310,11 +308,12 @@ class App extends Component {
           title={rawPuzzle.title}
         />
 
+        {
+          isLoading &&
+          <div className='loading'>Loading puzzle...</div>
+        }
+
         <div className='puzzle-area'>
-          {
-            isLoading &&
-            <div className='loading'>Loading puzzle...</div>
-          }
           {
             puzzle.length > 0 &&
             <Puzzle
@@ -327,6 +326,7 @@ class App extends Component {
           }
 
           {
+            !isLoading &&
             this.directions.map((direction, i) => (
               <Clues
                 key={`${i}-${direction}`}

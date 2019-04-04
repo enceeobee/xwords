@@ -14,7 +14,7 @@ function Header (props) {
       <p>
         {props.date} <span className='date-link' onClick={openModal}>(change date)</span>
       </p>
-      <p>By {props.author}</p>
+      { props.author && <p>By {props.author}</p> }
     </div>
   )
 }
