@@ -8,7 +8,7 @@ function Row (props) {
     inputCell,
     selectedClue
   } = props
-  const selectInputCell = (col) => props.selectInputCell([index, col])
+  const selectInputCell = col => props.selectInputCell([index, col])
 
   return (
     <Fragment>
@@ -19,14 +19,12 @@ function Row (props) {
             index={i}
             value={cell.input}
             cellClueNumber={cell.cellClueNumber}
-            isInputCell={inputCell[0] === index && inputCell[1] === i}
             inputClass={
               inputCell[0] === index && inputCell[1] === i
                 ? ' input'
                 : ''
             }
             selectedClueClass={
-              // [cell.acrossClueNumber, cell.downClueNumber].includes(selectedClue.number)
               cell.clues[selectedClue.direction] === selectedClue.number
                 ? ' selected-clue'
                 : ''
@@ -38,23 +36,5 @@ function Row (props) {
     </Fragment>
   )
 }
-
-// function Row (props) {
-//   return (
-//     <div className='row'>
-//       {
-//         // props.cols.map((col, i) => <Cell key={`col-${i}`} value={props.cols[i]} number={props.numbers[i]} />)
-//         props.row.map((cell, i) => (
-//           <Cell
-//             key={`cell-${i}`}
-//             value={cell.input}
-//             number={cell.clueNumber}
-//             isInputCell={props.inputCell[0] === props.index && props.inputCell[1] === i}
-//           />
-//         ))
-//       }
-//     </div>
-//   )
-// }
 
 export default Row

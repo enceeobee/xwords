@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 function Header (props) {
   function openModal () {
-    props.openModal('calendar')
+    props.openModal(props.isOnline ? 'calendar' : 'examples')
   }
 
   return (
@@ -14,7 +14,7 @@ function Header (props) {
       <p>
         {props.date} <span className='date-link' onClick={openModal}>(change date)</span>
       </p>
-      <p>By {props.author}</p>
+      { props.author && <p>By {props.author}</p> }
     </div>
   )
 }
@@ -23,6 +23,7 @@ Header.propTypes = {
   author: PropTypes.string,
   date: PropTypes.string,
   hastitle: PropTypes.bool,
+  isOnline: PropTypes.bool,
   openModal: PropTypes.func,
   title: PropTypes.string
 }

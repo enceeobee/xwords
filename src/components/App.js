@@ -6,6 +6,8 @@ import Header from './Header'
 import Modal from './Modal'
 import Puzzle from './Puzzle'
 
+import examples from '../examples'
+
 import clonePuzzle from '../lib/puzzle/clonePuzzle'
 import constructPuzzle from '../lib/puzzle/constructPuzzle'
 import determineIfFull from '../lib/puzzle/determineIfFull'
@@ -41,6 +43,7 @@ class App extends Component {
       entries: [],
       inputCell: [0, 0],
       isLoading: false,
+      isOnline: true,
       numberCoords: {},
       puzzle: [],
       rawPuzzle: {},
@@ -69,6 +72,7 @@ class App extends Component {
       case 'ArrowRight':
       case 'ArrowDown':
       case 'ArrowLeft': {
+        event.preventDefault()
         return this.handleArrowKey(event)
       }
       case 'Tab': {
@@ -87,7 +91,7 @@ class App extends Component {
     // TODO - Check if puzzle is already in localStorage
 
     const { date } = this.state
-    this.setState(() => ({ ...this.initialState, date }))
+    this.setState(() => ({ ...this.initialState, date, isLoading: true }))
 
     const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
 
@@ -101,7 +105,19 @@ class App extends Component {
       })
       .catch(e => {
         console.error(e)
-        this.setState(() => ({ isLoading: false, modalType: '' }))
+
+        document.addEventListener('keyup', this.inputCharacter, false)
+        document.addEventListener('keydown', this.handleKeyDown, false)
+
+        const rawPuzzle = examples.find(example => new Date(example.date).toISOString() === date.toISOString()) || examples[0]
+
+        this.setState(() => ({
+          rawPuzzle,
+          isLoading: false,
+          isOnline: false,
+          modalType: '',
+          date: new Date(rawPuzzle.date)
+        }), this.arrangePuzzle)
       })
   }
 
@@ -117,9 +133,7 @@ class App extends Component {
   selectDate = (date) => {
     if (date.toISOString() === this.state.date.toISOString()) return false
 
-    this.setState({ date }, () => {
-      this.loadPuzzle()
-    })
+    this.setState({ date }, this.loadPuzzle)
   }
 
   selectClue = (number, direction) => {
@@ -307,14 +321,16 @@ class App extends Component {
           author={rawPuzzle.author}
           date={formatDate(date)}
           hastitle={rawPuzzle.hastitle}
+          isOnline={this.state.isOnline}
           title={rawPuzzle.title}
         />
 
+        {
+          isLoading &&
+          <div className='loading'>Loading puzzle...</div>
+        }
+
         <div className='puzzle-area'>
-          {
-            isLoading &&
-            <div className='loading'>Loading puzzle...</div>
-          }
           {
             puzzle.length > 0 &&
             <Puzzle
@@ -327,6 +343,7 @@ class App extends Component {
           }
 
           {
+            !isLoading &&
             this.directions.map((direction, i) => (
               <Clues
                 key={`${i}-${direction}`}
