@@ -22,7 +22,7 @@ function Modal (props) {
 
         {
           props.type === 'correct' &&
-          <div className='message'><h3>Congratulations, you solved the puzzle! 🎉💥👌</h3></div>
+          <div className='message'><h3>Congratulations, you solved the puzzle! <span role='img' aria-label='tada emoji'>🎉</span><span role='img' aria-label='boom emoji'>💥</span><span role='img' aria-label='ok hand emoji'>👌</span></h3></div>
         }
 
         {
